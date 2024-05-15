@@ -10,7 +10,6 @@ __pycache__/
 *.mp4
 *.db
 *.sqlite3
-*.txt
 *.db-journal
 
 
