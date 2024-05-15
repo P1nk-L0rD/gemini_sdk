@@ -1,0 +1,25 @@
+venv
+.idea
+archive/
+__pycache__/
+/__pycache__/
+
+*.png
+*.jpeg
+*.jpg
+*.db
+*.sqlite3
+.db-journal
+new_video*.mp4
+user_id.txt
+users_id.txt
+
+# Environments
+*.env
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
