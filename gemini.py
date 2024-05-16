@@ -11,6 +11,28 @@ class Gemini:
         self.TIMEOUT = 60
         self.ATTEMPTS = 2
 
+    async def __make_request(self, body: dict):
+        """
+        Внутренний метод класса. Предназначен для отправки асинхроного запроса.
+        Посылает запрос self.ATTEMPTS раз в случае статус кода, отличного от 200.
+        Вызывает ошибку в случае неуспеха.
+        """
+        async with aiohttp.ClientSession(timeout=self.TIMEOUT) as session:
+            # 2 попытки запроса если в первый раз вернулся статус код не 200
+            for attempt in range(self.ATTEMPTS):
+                async with session.post(url=self.URL, json=body, headers=self.HEADERS) as response:
+
+                    if response.status == 200:
+                        response = await response.json()
+                        response_text = response["message"]
+                        tokens = response["tokens"]
+                        return response_text, tokens
+                    else:
+                        error = f"ERROR: {response.text()}, CODE: {response.status}, FULL: {response}"
+                        if attempt < self.ATTEMPTS - 1:
+                            continue
+                        raise Exception(error)
+
     async def ask_gemini(self, dialog: list[dict]) -> tuple[str, int]:
         """
         Основная функция для запросов к Gemini.
@@ -24,22 +46,15 @@ class Gemini:
             'history': dialog
         }
 
-        async with aiohttp.ClientSession(timeout=self.TIMEOUT) as session:
-            for attempt in range(self.ATTEMPTS):
-                async with session.post(url=self.URL, json=body, headers=self.HEADERS) as response:
-
-                    if response.status == 200:
-                        response = await response.json()
-                        response_text = response["tokens"]
-                        tokens = response["tokens"]
-                        return response_text, tokens
-                    else:
-                        details = response.content
-                        error = f"ERROR: {details}, CODE: {response.status}, FULL: {response}"
-                        if attempt == self.ATTEMPTS - 1:
-                            raise Exception(error)
-                        else:
-                            print("Ошибка запроса, повторная попытка...")
+        # 2 попытки запроса если в первый раз произошла ошибка
+        for attempt in range(self.ATTEMPTS):
+            try:
+                answer, tokens = await self.__make_request(body)
+                return answer, tokens
+            except Exception as error:
+                if attempt < self.ATTEMPTS - 1:
+                    continue
+                raise error
 
     async def ask_gemini_one_question(self, question: str) -> tuple[str, int]:
         """
