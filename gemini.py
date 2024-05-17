@@ -5,7 +5,9 @@ class Gemini:
 
     def __init__(self, api_key: str):
         self.API_KEY = api_key
-        self.URL = "http://103.35.188.2:8000/api/v1/text_prompt"
+        self.API_URL = "http://103.35.188.2:8000/api/v1/"
+        self.TEXT_URL = self.API_URL + "text_prompt"
+        self.BALANCE_URL = self.API_URL + "balance"
         self.HEADERS = {"Content-Type": "application/json"}
         self.TOKEN_LIMIT = 12_000
         self.TIMEOUT = 60
@@ -20,7 +22,7 @@ class Gemini:
         async with aiohttp.ClientSession(timeout=self.TIMEOUT) as session:
             # 2 попытки запроса если в первый раз вернулся статус код не 200
             for attempt in range(self.ATTEMPTS):
-                async with session.post(url=self.URL, json=body, headers=self.HEADERS) as response:
+                async with session.post(url=self.TEXT_URL, json=body, headers=self.HEADERS) as response:
 
                     if response.status == 200:
                         response = await response.json()
@@ -29,7 +31,7 @@ class Gemini:
                         return response_text, tokens
                     else:
                         error = f"ERROR: {response.text()}, CODE: {response.status}, FULL: {response}"
-                        if attempt < self.ATTEMPTS - 1:
+                        if attempt < self.ATTEMPTS - 1 and response.status not in range(400, 500):
                             continue
                         raise Exception(error)
 
@@ -64,3 +66,19 @@ class Gemini:
         """
         dialog = [{"role": "user", "parts": [question]}]
         return await self.ask_gemini(dialog)
+
+    async def get_balance(self):
+        body = {"user_api": self.API_KEY}
+        async with aiohttp.ClientSession(timeout=self.TIMEOUT) as session:
+            # 2 попытки запроса если в первый раз вернулся статус код не 200
+            for attempt in range(self.ATTEMPTS):
+                async with session.get(url=self.BALANCE_URL, json=body, headers=self.HEADERS) as response:
+
+                    if response.status == 200:
+                        response = await response.json()
+                        return response["balance"]
+                    else:
+                        error = f"ERROR: {response.text()}, CODE: {response.status}, FULL: {response}"
+                        if attempt < self.ATTEMPTS - 1 and response.status not in range(400, 500):
+                            continue
+                        raise Exception(error)
