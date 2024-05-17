@@ -1,4 +1,5 @@
 import aiohttp
+from aiohttp.client_exceptions import ClientResponseError
 
 
 class Gemini:
@@ -10,7 +11,7 @@ class Gemini:
         self.BALANCE_URL = self.API_URL + "balance"
         self.HEADERS = {"Content-Type": "application/json"}
         self.TOKEN_LIMIT = 12_000
-        self.TIMEOUT = 60
+        self.TIMEOUT = aiohttp.ClientTimeout(total=60)
         self.ATTEMPTS = 2
 
     async def __make_request(self, body: dict):
@@ -19,6 +20,7 @@ class Gemini:
         Посылает запрос self.ATTEMPTS раз в случае статус кода, отличного от 200.
         Вызывает ошибку в случае неуспеха.
         """
+
         async with aiohttp.ClientSession(timeout=self.TIMEOUT) as session:
             # 2 попытки запроса если в первый раз вернулся статус код не 200
             for attempt in range(self.ATTEMPTS):
@@ -30,10 +32,16 @@ class Gemini:
                         tokens = response["tokens"]
                         return response_text, tokens
                     else:
-                        error = f"ERROR: {response.text()}, CODE: {response.status}, FULL: {response}"
                         if attempt < self.ATTEMPTS - 1 and response.status not in range(400, 500):
                             continue
-                        raise Exception(error)
+
+                        raise ClientResponseError(
+                            request_info=response.request_info,
+                            history=response.history,
+                            code=response.status,
+                            message=f"{response.reason} {await response.text()}",
+                            headers=response.headers
+                        )
 
     async def ask_gemini(self, dialog: list[dict]) -> tuple[str, int]:
         """
@@ -56,7 +64,6 @@ class Gemini:
             except Exception as error:
                 if attempt < self.ATTEMPTS - 1:
                     continue
-                raise error
 
     async def ask_gemini_one_question(self, question: str) -> tuple[str, int]:
         """
@@ -72,13 +79,19 @@ class Gemini:
         async with aiohttp.ClientSession(timeout=self.TIMEOUT) as session:
             # 2 попытки запроса если в первый раз вернулся статус код не 200
             for attempt in range(self.ATTEMPTS):
-                async with session.get(url=self.BALANCE_URL, json=body, headers=self.HEADERS) as response:
+                async with session.get(url=self.BALANCE_URL, params=body, headers=self.HEADERS) as response:
 
                     if response.status == 200:
                         response = await response.json()
                         return response["balance"]
                     else:
-                        error = f"ERROR: {response.text()}, CODE: {response.status}, FULL: {response}"
                         if attempt < self.ATTEMPTS - 1 and response.status not in range(400, 500):
                             continue
-                        raise Exception(error)
+
+                        raise ClientResponseError(
+                            request_info=response.request_info,
+                            history=response.history,
+                            code=response.status,
+                            message=f"{response.reason} {await response.text()}",
+                            headers=response.headers
+                        )
