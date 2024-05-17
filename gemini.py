@@ -52,7 +52,7 @@ class Gemini:
         """
 
         body = {
-            'api_key': self.API_KEY,
+            'user_api': self.API_KEY,
             'history': dialog
         }
 
