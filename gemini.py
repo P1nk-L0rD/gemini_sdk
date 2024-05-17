@@ -64,6 +64,7 @@ class Gemini:
             except Exception as error:
                 if attempt < self.ATTEMPTS - 1:
                     continue
+                raise error
 
     async def ask_gemini_one_question(self, question: str) -> tuple[str, int]:
         """
