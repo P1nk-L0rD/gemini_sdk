@@ -49,3 +49,7 @@ async def make_request_to_gemini(user_id: int, question: str, dialogs: dict[int:
     }
 
     return answer, tokens
+
+# Узнать баланс
+
+print(asyncio.run(gemini.get_balance()))
