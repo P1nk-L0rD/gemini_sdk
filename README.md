@@ -46,7 +46,7 @@ Base_url = http://103.35.188.2:8001/api/v1/
 
 Payload:
 
-```
+```json
 {
     "user_api": "API_KEY",
     "history": [{"role": "user", "parts": ["Who are you?"]}]
@@ -54,7 +54,7 @@ Payload:
 ```
 
 Answer:
-```
+```json
 {
     "message": "I am Gemini!",
     "tokens": 24
@@ -69,14 +69,14 @@ Answer:
 
 Payload:
 
-```
+```json
 {
     "user_api": "API_KEY"
 }
 ```
 
 Answer:
-```
+```json
 {
     "balance": 5000,
     "user_id": 350789765
