@@ -11,7 +11,7 @@ class Gemini:
         self.BALANCE_URL = self.API_URL + "balance"
         self.HEADERS = {"Content-Type": "application/json"}
         self.TOKEN_LIMIT = 12_000
-        self.TIMEOUT = aiohttp.ClientTimeout(total=60)
+        self.TIMEOUT = aiohttp.ClientTimeout(total=90)
         self.ATTEMPTS = 2
 
     async def __make_request(self, body: dict):
@@ -76,6 +76,9 @@ class Gemini:
         return await self.ask_gemini(dialog)
 
     async def get_balance(self):
+        """
+        Узнать текущий баланс.
+        """
         body = {"user_api": self.API_KEY}
         async with aiohttp.ClientSession(timeout=self.TIMEOUT) as session:
             # 2 попытки запроса если в первый раз вернулся статус код не 200

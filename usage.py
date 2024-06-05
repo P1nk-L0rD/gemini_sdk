@@ -3,8 +3,10 @@ import asyncio
 from gemini import Gemini
 
 
-# Простейшее использование
 gemini = Gemini("API_KEY")
+
+
+# Простейшее использование
 
 
 def simple_usage(question: str):
