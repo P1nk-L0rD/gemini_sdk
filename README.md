@@ -31,3 +31,55 @@
 Для помощи и предложений напишите мне: https://t.me/IMC_tech
 
 SDK находится в стадии разработки, поэтому мы будем рады услышать ваши предложения по улучшению кода!
+
+# Эндпоинты и прочая инфа если вы не можете использовать SDK
+
+## REST API:
+
+Base_url = http://103.35.188.2:8001/api/v1/
+
+## Gemini text completion
+
+| Method | Address     | Status code |
+|--------|-------------|-------------| 
+| POST   | text_prompt | 200         |
+
+Payload:
+
+```
+{
+    "user_api": "API_KEY",
+    "history": [{"role": "user", "parts": ["Who are you?"]}]
+}
+```
+
+Answer:
+```
+{
+    "message": "I am Gemini!",
+    "tokens": 24
+}
+```
+
+## Check balance
+
+| Method | Address  | Status code |
+|--------|----------|-------------| 
+| GET    | balance  | 200         |
+
+Payload:
+
+```
+{
+    "user_api": "API_KEY"
+}
+```
+
+Answer:
+```
+{
+    "balance": 5000,
+    "user_id": 350789765
+}
+```
+Баланс указывается в рублях
