@@ -6,7 +6,7 @@ class Gemini:
 
     def __init__(self, api_key: str):
         self.API_KEY = api_key
-        self.API_URL = "http://103.35.188.2:8001/api/v1/"
+        self.API_URL = "https://yummyapi.shop/api/v1/"
         self.TEXT_URL = self.API_URL + "text_prompt"
         self.BALANCE_URL = self.API_URL + "balance"
         self.HEADERS = {"Content-Type": "application/json"}
